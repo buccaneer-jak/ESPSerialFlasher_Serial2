@@ -4,16 +4,18 @@
 #include "serial_comm.h"
 #include "esp_loader.h"
 
-
 static int32_t s_time_end;
+
+#define TARGET_RESETN  4			// Connected to reset/EN pin of target board
+#define TARGET_GPIO0  14			// connected to Boot-IO_0 of target board
 
 Print * ESPDebugPort = &Serial;
 bool ESPDebug = false;
 
 void ESPFlasherInit( bool _debug, Print * _debugPort ){
-SerialNina.begin(115200);
-pinMode(NINA_RESETN, OUTPUT);
-pinMode(NINA_GPIO0, OUTPUT);
+Serial2.begin(115200);
+pinMode(TARGET_RESETN, OUTPUT);
+pinMode(TARGET_GPIO0, OUTPUT);
 ESPDebug = _debug;
 ESPDebugPort = _debugPort;
 if(ESPDebug) ESPDebugPort->println("ESP Flasher Init");
@@ -31,7 +33,7 @@ void ESPFlashBin(const char* binFilename){
         File UpdateFile = SD.open(binFilename, FILE_READ);
         size_t size = UpdateFile.size();
         if(size <= 0x247000){
-        flash_binary(UpdateFile,  size,  0x0);
+        flash_binary(UpdateFile,  size,  0x10000);
         } else {
             if(ESPDebug) ESPDebugPort->println("File too large for partition");
         }
@@ -76,7 +78,7 @@ esp_loader_error_t loader_port_serial_write(const uint8_t *data, uint16_t size, 
 {
     
 
-   size_t err = SerialNina.write((const char *)data, size);
+   size_t err = Serial2.write((const char *)data, size);
 
     if (err == size) {
         return ESP_LOADER_SUCCESS;
@@ -88,8 +90,8 @@ esp_loader_error_t loader_port_serial_write(const uint8_t *data, uint16_t size, 
 
 esp_loader_error_t loader_port_serial_read(uint8_t *data, uint16_t size, uint32_t timeout)
 {
-	SerialNina.setTimeout(timeout);
-    int read = SerialNina.readBytes( data, size);
+	Serial2.setTimeout(timeout);
+    int read = Serial2.readBytes( data, size);
 
     if (read < 0) {
         return ESP_LOADER_ERROR_FAIL;
@@ -105,18 +107,18 @@ esp_loader_error_t loader_port_serial_read(uint8_t *data, uint16_t size, uint32_
 // assert reset pin for 50 milliseconds.
 void loader_port_enter_bootloader(void)
 {
-    digitalWrite(NINA_GPIO0, 0);
-    loader_port_reset_target();
-    loader_port_delay_ms(50);
-    digitalWrite(NINA_GPIO0, 1);
+    digitalWrite(TARGET_GPIO0, 0);	// BOOT LOW
+    loader_port_reset_target();		// Toggles EN, to LOW then HIGH
+    loader_port_delay_ms(50);		// 50
+    digitalWrite(TARGET_GPIO0, 1);	// BOOT HIGH
 }
 
 
 void loader_port_reset_target(void)
 {
-    digitalWrite(NINA_RESETN, 0);
-    loader_port_delay_ms(50);
-    digitalWrite(NINA_RESETN, 1);
+    digitalWrite(TARGET_RESETN, 0);	// EN LOW
+    loader_port_delay_ms(50);		// 50
+    digitalWrite(TARGET_RESETN, 1);	// EN HIGH
 }
 
 
@@ -146,8 +148,8 @@ void loader_port_debug_print(const char *str)
 
 esp_loader_error_t loader_port_change_baudrate(uint32_t baudrate)
 {
-    SerialNina.begin(baudrate);
-    int err = SerialNina;
+    Serial2.begin(baudrate);
+    int err = Serial2;
     return (err == true) ? ESP_LOADER_SUCCESS : ESP_LOADER_ERROR_FAIL;
 }
 
@@ -157,8 +159,11 @@ esp_loader_error_t connect_to_target(uint32_t higher_baudrate)
 
     esp_loader_error_t err = esp_loader_connect(&connect_config);
     if (err != ESP_LOADER_SUCCESS) {
-        if(ESPDebug) ESPDebugPort->print("Cannot connect to target. Error: %u\n");
-        if(ESPDebug) ESPDebugPort->print(err);
+        if(ESPDebug) ESPDebugPort->printf("Cannot connect to target. Error: %u\n", err);
+        //if(ESPDebug) ESPDebugPort->print(err);
+		if 		(err == ESP_LOADER_ERROR_TIMEOUT) 		 ESPDebugPort->printf("Timeout error: %u\n", err);
+		else if (err == ESP_LOADER_ERROR_INVALID_TARGET) ESPDebugPort->printf("Invalid Target error: %u\n", err);
+		
         return err;
     }
     if(ESPDebug) ESPDebugPort->print("Connected to target\n");

@@ -97,7 +97,7 @@ typedef struct {
 
 #define ESP_LOADER_CONNECT_DEFAULT() { \
   .sync_timeout = 100, \
-  .trials = 10, \
+  .trials = 15, \
 }
 
 /**
