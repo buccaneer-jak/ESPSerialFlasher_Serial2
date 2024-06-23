@@ -1,6 +1,6 @@
 [![Arduino Badge](https://github.com/winner10920/ESPSerialFlasher/actions/workflows/check-arduino.yml/badge.svg)](https://github.com/winner10920/ESPSerialFlasher/actions/workflows/check-arduino.yml)
 [![Compile Badge](https://github.com/winner10920/ESPSerialFlasher/actions/workflows/compile-examples.yml/badge.svg)](https://github.com/winner10920/ESPSerialFlasher/actions/workflows/compile-examples.yml)
-# Esp Serial flasher
+# ESP32 Serial flasher using Serial2
 
 ## Overview
 Provides the ability to flash an ESP32 from another ESP32 via Serial2
@@ -30,4 +30,4 @@ Code is distributed under Apache 2.0 license.
 This Library is based off of code from (https://github.com/espressif/esp-serial-flasher)
 
 ## Contact Me
-If you have any Questions, Comments, Concerns please email me rjfedor@hotmail.com
+If you have any Questions, Comments, Concerns please email me @hotmail.com
