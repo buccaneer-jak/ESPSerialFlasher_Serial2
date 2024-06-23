@@ -107,18 +107,18 @@ esp_loader_error_t loader_port_serial_read(uint8_t *data, uint16_t size, uint32_
 // assert reset pin for 50 milliseconds.
 void loader_port_enter_bootloader(void)
 {
-    digitalWrite(TARGET_GPIO0, 0);	// BOOT LOW
+    digitalWrite(TARGET_GPIO0, 0);	// set BOOT pin LOW
     loader_port_reset_target();		// Toggles EN, to LOW then HIGH
-    loader_port_delay_ms(50);		// 50
-    digitalWrite(TARGET_GPIO0, 1);	// BOOT HIGH
+    loader_port_delay_ms(50);		// 50ms
+    digitalWrite(TARGET_GPIO0, 1);	// set BOOT pin HIGH
 }
 
 
 void loader_port_reset_target(void)
 {
-    digitalWrite(TARGET_RESETN, 0);	// EN LOW
-    loader_port_delay_ms(50);		// 50
-    digitalWrite(TARGET_RESETN, 1);	// EN HIGH
+    digitalWrite(TARGET_RESETN, 0);	// set EN pin LOW
+    loader_port_delay_ms(50);		// 50ms
+    digitalWrite(TARGET_RESETN, 1);	// set EN pin HIGH
 }
 
 
