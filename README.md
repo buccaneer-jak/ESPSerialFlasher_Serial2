@@ -6,7 +6,7 @@
 Provides the ability to flash an ESP32 from another ESP32 via Serial2
 
 ## Limitations
-Has only been confirmed to work on the Espressif ESP32 dev Board. With the correct ino.bin this has successfully flashed other ESP32, ESP32-C2 and ESP32-S3 boards
+Has only been confirmed to work on the Espressif ESP32 dev Board. With the correct ino.bin this has successfully flashed other ESP32, ESP32-C3, ESP32-C6 and ESP32-S3 boards
 This library is edited by myself with limited knowledge of the underlying ESP Flasher code, it's basically an Arduino port of the espressif flasher (https://github.com/espressif/esp-serial-flasher) . It's worked well for me but there are no guarantees and I welcome other people to help contribute to make this more refined and more usable for the general public
 
 ## Requirements
